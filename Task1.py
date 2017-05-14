@@ -8,6 +8,7 @@ class timestampCount:
 path = 'C:/ADM/mw_trace50.csv'
 data = csv.DictReader(open(path),dialect='excel')
 
+
 def task1map(data):
     timestamps = []
     for row in data:
