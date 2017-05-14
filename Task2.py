@@ -97,19 +97,24 @@ def task2secondreduce(sendReceiveds):
 def write(timestampsinminutes):
     file = open('C:/ADM/task2result.csv', 'w')
     for tsim in timestampsinminutes:
-        file.write(str(tsim.timestamp)+','+str(tsim.count)+','+str(tsim.errorCount)+','+str(tsim.averageduration)+'\n')
+        file.write(str(tsim.timestamp)+','+str(tsim.count)+','+str(tsim.errorCount)+','+str(tsim.averageduration)+','+str(sum(tsim.Durations))+'\n')
 
 
+# 1. MAP Load data from CSV, ClientID 0 is not loaded, invalid err_codes (null, NaN) turned to -1
 logs = task2firstmap(data)
 print('data loaded')
-# sorting first by clientid, second by local timestamp, third by type. This combination identifies one package send-receive
+# 2. SHUFFLE sorting first by clientid, second by local timestamp, third by type. This combination identifies one package send-receive
 logs.sort(key=lambda x: (x.client_id, x.loc_ts, x.code))
 print('data sorted 1')
+# 3. First REDUCE Send-Receive-Pairs are put together in one SendReceived Object
 sendReceiveds = task2firstreduce(logs)
 print('firstReduce done')
+# 4. Second SHUFFLE sorting by the minute in which the Send-Timestamp was set
 sendReceiveds.sort(key=lambda x: x.sent_minute)
 print('data sorted 2')
+# 5. Second REDUCE grouping all SendReceived-Object to TimestampInMinute-object together to be able to calc the average
 timestampsinminutes = task2secondreduce(sendReceiveds)
 print('secondreduce done')
+# 6. OUTPUT write to filesystem and do the effective Average-Calculation
 write(timestampsinminutes)
 print('write done')
