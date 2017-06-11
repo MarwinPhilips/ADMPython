@@ -1,5 +1,5 @@
 import csv
-
+import datetime
 
 class TimestampInMinute:
     def __init__(self, timestamp):
@@ -34,13 +34,12 @@ class LogMessage:
 path = 'C:/ADM/client_trace50.csv'
 data = csv.DictReader(open(path),dialect='excel')
 
-
 def task2firstmap(data):
     logs = []
     for row in data:
-        # somehow the clientid 0 is not following the logic to increment the loc_ts for every call. there is no way to clearly identify which
-        # request belongs to which response
-        message = LogMessage(str(row['code']),int(row['client_id']),int(row['loc_ts']),safeintcast(row['err_code'], -1), int(row['time']))
+        # somehow the clientid 0 is not following the logic to increment the loc_ts for every call.
+        # There is no way to clearly identify which request belongs to which response -> Ignore them
+        message = LogMessage(str(row['code']), int(row['client_id']), int(row['loc_ts']), safeintcast(row['err_code'], -1), int(row['time']))
         if message.client_id != 0:
             logs.append(message)
     return logs
@@ -99,7 +98,7 @@ def write(timestampsinminutes):
     for tsim in timestampsinminutes:
         file.write(str(tsim.timestamp)+','+str(tsim.count)+','+str(tsim.errorCount)+','+str(tsim.averageduration)+','+str(sum(tsim.Durations))+'\n')
 
-
+start_time = datetime.datetime.now()
 # 1. MAP Load data from CSV, ClientID 0 is not loaded, invalid err_codes (null, NaN) turned to -1
 logs = task2firstmap(data)
 print('data loaded')
@@ -118,3 +117,5 @@ print('secondreduce done')
 # 6. OUTPUT write to filesystem and do the effective Average-Calculation
 write(timestampsinminutes)
 print('write done')
+
+print("Program terminated. Time spent: " + str(datetime.datetime.now()-start_time))

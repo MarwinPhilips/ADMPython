@@ -1,4 +1,5 @@
 import csv
+import datetime
 
 class timestampCount:
     def __init__(self, timestamp):
@@ -6,8 +7,9 @@ class timestampCount:
         self.count = 1
 
 path = 'C:/ADM/mw_trace50.csv'
-data = csv.DictReader(open(path),dialect='excel')
 
+
+data = csv.DictReader(open(path),dialect='excel')
 
 def task1map(data):
     timestamps = []
@@ -34,8 +36,10 @@ def write(timestampsCount):
     for tsc in timestampsCount:
         file.write(str(tsc.timestamp)+','+str(tsc.count)+'\n')
 
+
+start_time = datetime.datetime.now()
 timestamps = task1map(data)
 sorted(timestamps)
 timestampsCount = task1reduce(timestamps)
-
 write(timestampsCount)
+print("Program terminated. Time spent: " + str(datetime.datetime.now()-start_time))
