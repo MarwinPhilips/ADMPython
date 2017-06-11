@@ -2,7 +2,7 @@ import datetime
 import multiprocessing
 import sys
 import pandas
-import MapReduce
+from MapReduce import MapReduce
 
 """
 Ziel Teil 2: Mittelwerte von Responsetimes pro Minute (Clientseitiges Log)

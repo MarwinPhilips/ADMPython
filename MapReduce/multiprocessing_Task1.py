@@ -2,7 +2,7 @@ import collections
 import datetime
 import multiprocessing
 import pandas
-import MapReduce
+from MapReduce import MapReduce
 
 """
 Ziel Teil 1: Throughput pro Minute (Serverseitiges Log)
