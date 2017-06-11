@@ -14,7 +14,6 @@ class MapReduce(object):
             shuffeled_data[key].append(value)
         return shuffeled_data.items()
 
-
     def __init__(self, map_function, reduce_function, shuffle_function=default_shuffle, worker_count=None):
         """
         Create a MapReduce-object.
@@ -27,7 +26,6 @@ class MapReduce(object):
         self.reduce_function = reduce_function
         self.shuffle_function = shuffle_function
         self.pool = multiprocessing.Pool(worker_count)
-
 
     def __call__(self, inputs, chunksize=1):
         """
