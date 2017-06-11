@@ -1,14 +1,13 @@
 import multiprocessing
 import collections
-import itertools
 
 
 class MapReduce(object):
-
     def default_shuffle(self, mapped_values):
         """
-        :param mapped_values:
-        :return:
+        Default shuffle if none is provided
+        :param mapped_values: dict of mapped values
+        :return: shuffeled data
         """
         shuffeled_data = collections.defaultdict(list)
         for key, value in mapped_values:
@@ -18,11 +17,11 @@ class MapReduce(object):
 
     def __init__(self, map_function, reduce_function, shuffle_function=default_shuffle, worker_count=None):
         """
-
-        :param map_function:
-        :param reduce_function:
-        :param shuffle_function:
-        :param worker_count:
+        Create a MapReduce-object.
+        :param map_function: the mapping function to be distributed among processes
+        :param reduce_function: the reducing function to be distributed among processes
+        :param shuffle_function: single process function for sorting in between distributed tasks
+        :param worker_count: maximum number of processes/workers
         """
         self.map_function = map_function
         self.reduce_function = reduce_function
@@ -32,13 +31,11 @@ class MapReduce(object):
 
     def __call__(self, inputs, chunksize=1):
         """
-        :param inputs: 
-        :param chunksize: 
-        :return: 
+        :param inputs: list of data-parts to be mapped
+        :param chunksize: size of chunks to be mapped
+        :return: delivers the output as specified in the reduce function
         """
         map_responses = self.pool.map(self.map_function, inputs, chunksize=chunksize)
-        #self.pool.close()
-        #self.pool.join()
         shuffeled_data = self.shuffle_function(map_responses)
         reduced_values = self.pool.map(self.reduce_function, shuffeled_data)
         return reduced_values
