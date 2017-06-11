@@ -1,63 +1,49 @@
 import csv
 import datetime
 import multiprocessing
-import os
-import sys
+import collections
 import pandas
-from multiprocessing.pool import Pool
-
 from MapReduce import MapReduce
 
 """
 Ziel Teil 1: Throughput pro Minute (Serverseitiges Log)
 """
 
-def task1map(data):
+
+def task1map(file):
     start_time = datetime.datetime.now()
     print(multiprocessing.current_process().name + " started mapping.")
-    timestamps = []
-    for index, row in data.iterrows():
-        if row['code']=='res_snd':
-            timestamps.append( (int(row['time'])//60000, 1) )
+    with open(file) as f:
+        data = csv.DictReader(f, dialect='excel')
+        timestamps = []
+        for row in data:
+            if row['code']=='res_snd':
+                timestamps.append(int(row['time'])//60000)
     stop_time = datetime.datetime.now()
     running_time = stop_time - start_time
-    print(multiprocessing.current_process().name + " finished. Time spent: " + running_time + " ms")
+    print(multiprocessing.current_process().name + " finished mapping. Time spent: " + str(running_time))
     return timestamps
+
+
+def task1shuffle(data):
+    l = (sorted(list(data)),)
+    return l
 
 
 def task1reduce(timestamps):
-    return timestamps
-
-def split_csv(input_file, chunks=multiprocessing.cpu_count()):
-    in_file_size = os.path.getsize(input_file)
-    print('Input file size: ', in_file_size)
-    chunk_size = in_file_size // chunks
-    print('Target chunk size: ', chunk_size)
-    chunks = []
-    for chunk in pandas.read_csv(input_file, chunksize=chunk_size):
-        chunks.append(chunk)
-    return chunks
+    print(multiprocessing.current_process().name + " started reducing.")
+    return collections.Counter(timestamps)
 
 if __name__ == '__main__':
-
-    #if (len(sys.argv) < 2):
-    #    print("Program requires path to file for reading!")
-    #    sys.exit(1)
-
+    import glob
+    start_time = datetime.datetime.now()
     print("Number of processors: " + str(multiprocessing.cpu_count()))
-
-    #if (len(sys.argv) > 2):
-    #    chunks = sys.argv[2]
-
-
-    # Load the file passed as argument
-    #data = csv.DictReader(open(sys.argv[1]), dialect='excel')
-
-    # Create a pool of processes according to cpu count
-    #pool = Pool(processes=multiprocessing.cpu_count())
-
-    chunks = split_csv("C:\\Users\\keRbeRos\\PycharmProjects\\ADMPython\\data\\mw_trace50.csv", multiprocessing.cpu_count())
-
-    mapper = MapReduce(task1map, task1reduce)
+    chunks = glob.glob("E:\\Dropbox\\04 Info FH\\Advanced Data Management\\MapReduce\\split_1_12\\*.csv")
+    mapper = MapReduce(task1map, task1reduce, task1shuffle, multiprocessing.cpu_count())
     minute_averages = mapper(chunks)
-    print(minute_averages)
+    df = pandas.DataFrame.from_dict(minute_averages[0], orient='index').reset_index()
+    df = df.rename(columns={'index': 'minute', 0: 'count'})
+    df.to_csv("E:\\Dropbox\\04 Info FH\\Advanced Data Management\\MapReduce\\multiprocessing_Task1_output.csv")
+    stop_time = datetime.datetime.now()
+    running_time = stop_time - start_time
+    print("Program terminated. Time spent: " + str(running_time))
