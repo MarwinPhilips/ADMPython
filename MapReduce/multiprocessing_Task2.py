@@ -6,6 +6,7 @@ from MapReduce import MapReduce
 
 """
 Ziel Teil 2: Mittelwerte von Responsetimes pro Minute (Clientseitiges Log)
+Autor: Michel Hosmann
 """
 
 

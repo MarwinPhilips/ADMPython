@@ -6,6 +6,7 @@ from MapReduce import MapReduce
 
 """
 Ziel Teil 1: Throughput pro Minute (Serverseitiges Log)
+Autor: Michel Hosmann
 """
 
 

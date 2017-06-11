@@ -1,6 +1,9 @@
 import multiprocessing
 import collections
 
+"""
+Autor: Michel Hosmann
+"""
 
 class MapReduce(object):
     def default_shuffle(self, mapped_values):
